@@ -1,6 +1,7 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
+import './global.css';
 import ThemeRegistry from '@/components/ThemeRegistry/ThemeRegistry';
+import { Box } from '@mui/material';
 
 export const metadata = {
   title: 'Тестовое задание',
@@ -15,16 +16,24 @@ export default function RootLayout({ children }) {
       <body>
         <ThemeRegistry>
           <Box
-            component="main"
             sx={{
-              flexGrow: 1,
-              bgcolor: 'background.default',
-              ml: `${DRAWER_WIDTH}px`,
-              mt: ['48px', '56px', '64px'],
-              p: 3,
+              display: 'flex',
+              flexDirection: 'column',
+              flex: '1 0 auto',
             }}
           >
+
             {children}
+            <Box
+              sx={{
+                display: 'flex',
+                flex: '0 0 auto',
+                justifyContent: 'center',
+                borderTop: '2px solid #ebebeb',
+              }}
+            >
+              By Abrakadabra worckshop 2024
+            </Box>
           </Box>
         </ThemeRegistry>
       </body>

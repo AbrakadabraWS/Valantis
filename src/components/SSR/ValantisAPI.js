@@ -1,4 +1,6 @@
+// import 'server-only';
 import { MD5 } from 'crypto-js';
+
 const KEY_WORD = 'Valantis';
 const URL = 'https://api.valantis.store:41000/';
 const TIMEZONE = -3; // местное время сервера UTC-3 ??? не верное время на сервере???
@@ -28,6 +30,18 @@ const checkArrayRepetitions = (mainArray) => {
     });
     return resultArray;
 }
+
+const checkItemArrayRepetitions = (itemArray) => {
+    // console.log(itemArray)
+    let resultArray = [];
+    itemArray.forEach((item) => {
+        if (!resultArray.find((itemFromResultArray) => itemFromResultArray.id === item.id)) {
+            resultArray.push(item);
+        }
+    });
+    return resultArray;
+}
+
 export const ValantisAPIPOSTrequest = async (raw) => {
     console.log('*** in ValantisAPIPOSTrequest ***');
 
@@ -44,8 +58,8 @@ export const ValantisAPIPOSTrequest = async (raw) => {
         redirect: 'follow'
     };
 
-    const response = await fetch(URL, requestOptions);
-    // console.log(fetchResponse)
+    const response = await fetch(URL, { ...requestOptions, cache: 'no-store' });
+
     if (response.ok) {
         ValantisRes = await response.json();
         return ValantisRes.result;
@@ -63,14 +77,14 @@ export const ValantisAPIPOSTrequest = async (raw) => {
  * Далее по выбранным идентификаторам можно запросить подробную информацию о товаре.
  * По умолчанию возвращает идентификаторы всех имеющиеся товаров.
  */
-export const getIDs = async ({
+export const getIDs = async (
     limit = 0,
     // offset = 0
-}) => {
+) => {
     console.log('*** in getIDs ***');
 
-    let idsArray = [];
-    let idsResult;
+    let ids;
+
     let rawInJSON = {
         'action': 'get_ids',
     };
@@ -84,19 +98,16 @@ export const getIDs = async ({
     }
 
 
-    idsResult = await ValantisAPIPOSTrequest(
+    ids = await ValantisAPIPOSTrequest(
         JSON.stringify(rawInJSON)
     );
 
-    if (typeof idsResult === 'string') {
-        return idsResult;
+    if (typeof ids !== 'string') {
+        ids = checkArrayRepetitions(ids);
     }
-    else {
-        idsArray = idsResult;
-    }
-    idsArray = checkArrayRepetitions(idsArray);
+
     //если добавить возможность устанавливать лимит то нужно дописать код по добавлению недостающих элементов после чистки списка
-    return idsArray;
+    return ids;
 };
 
 /**
@@ -106,6 +117,8 @@ export const getIDs = async ({
  */
 export const getItems = async (ids = []) => {
     console.log('*** in getItems ***');
+
+    let items;
 
     let rawInJSON = {
         'action': 'get_items',
@@ -121,9 +134,22 @@ export const getItems = async (ids = []) => {
         rawInJSON.params = { 'ids': ids };
     }
 
-    return await ValantisAPIPOSTrequest(
+    items = await ValantisAPIPOSTrequest(
         JSON.stringify(rawInJSON)
     );
+
+    if (items.length === 0) {
+        items = `Ошибка сервера!\n` +
+            `Код ответа сервера: 200\n` +
+            `Количество полученных элементов: ${items.length}\n` +
+            `Количество запрошенных элементов: ${ids.length}`
+    }
+
+    if (typeof items !== 'string') {
+        items = checkItemArrayRepetitions(items)
+    }
+
+    return items;
 
 };
 

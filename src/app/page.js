@@ -1,11 +1,14 @@
+'use client'// Закомментировать если хотим запросы в API через сервер (не работает npm run build и соответственно на gitPages)
 // import * as React from 'react';
 import Box from '@mui/material/Box';
-import { ValantisFilter, getFields, getIDs, getItems } from '@/components/SSR/ValantisAPI';
-import { Main } from '@/components/CSR/Main/Main'; // Закомментировать если хотим запросы в API через сервер (не работает npm run build и соответственно на gitPages)
-// import { Main } from '@/components/CSR/Main/MainForSSR'; //Раскомментировать если хотим запросы в API через сервер (не работает npm run build и соответственно на gitPages)
 import { FilterPanel } from '@/components/CSR/FilterPanel/FilterPanel';
+import { Main } from '@/components/CSR/Main/Main'; // Закомментировать если хотим запросы в API через сервер (не работает npm run build и соответственно на gitPages)
+import { getFields } from '@/components/SSR/ValantisAPI';
 
 /*  Раскомментировать если хотим запросы в API через сервер (не работает npm run build и соответственно на gitPages)
+import { ValantisFilter, getFields, getIDs, getItems } from '@/components/SSR/ValantisAPI'; 
+import { Main } from '@/components/CSR/Main/MainForSSR';
+
 async function getItemsForPage(IDs, pageNumber, itemsPerPage) {
   "use server"
   console.log('in getItemsForPage');
@@ -42,11 +45,15 @@ async function getIDSForPage() {
 export default async function HomePage() {
   console.log('*** in HomePage ***');
 
-  // console.log(Items)
   // let fields = await getFields({ field: 'brand' });
-  // console.log(fields)
+
   // let filter = await ValantisFilter({ field: 'brand', value: 'Mauboussin' });
-  // console.log(filter)
+
+  const cbGetFields = async (field) => {
+    console.log(field)
+    return getFields({ field: field });
+  }
+
   return (
     <Box
       // className={styles.homePage}
@@ -59,13 +66,16 @@ export default async function HomePage() {
       <FilterPanel
         sx={{
           display: 'flex',
+          flexDirection: 'column',
           width: '400px',
         }}
+        getFields={cbGetFields}
       />
 
       <Main
-      // getIDSForPage={getIDSForPage}      // Раскомментировать если хотим запросы в API через сервер (не работает npm run build и соответственно на gitPages)
-      // getItemsForPage={getItemsForPage}  // Раскомментировать если хотим запросы в API через сервер (не работает npm run build и соответственно на gitPages)
+      // Раскомментировать если хотим запросы в API через сервер (не работает npm run build и соответственно на gitPages)
+      // getIDSForPage={getIDSForPage}      
+      // getItemsForPage={getItemsForPage}
       />
     </Box>
   );

@@ -6,6 +6,7 @@ import { ProductCard } from '../ProductCard/ProductCard';
 import { PaginationPanel } from '../PaginationPanel/PaginationPanel';
 import { useCallback, useEffect, useState } from 'react';
 import { ValantisFilter, getFields, getIDs, getItems } from '@/components/SSR/ValantisAPI';
+import { LoadErrorCard } from '../LoadErrorCard/LoadErrorCard';
 
 export const Main = ({
     // getIDSForPage,
@@ -24,16 +25,12 @@ export const Main = ({
     const REPEAT_REQ_VIA = 1000
 
     const cbChangePage = useCallback((event, page) => {
-        // console.log(event)
-        console.log(page)
         setDataIsLoad(true);
         setPageNumber(page);
     }, []);
 
     const updateDataInPage = () => {
         setPaginationDisabled(true);
-        console.log(IDs)
-        console.log(IDs[pageNumber - 1])
         getItems(IDs[pageNumber - 1]).then(
             (result) => {
                 // обработает успешное выполнение 
@@ -51,22 +48,10 @@ export const Main = ({
                     }
                 }
                 else {
-                    //             console.log('----------------------------------------------------')
-                    //             console.log(pageNumber)
-                    //             console.log(result.pageNumber)
-                    //             console.log(result.pageNumber === pageNumber)
-                    //             console.log(itemsPerPage)
-                    //             console.log(result.itemsPerPage)
-                    //             console.log(result.itemsPerPage === itemsPerPage)
-                    //             console.log('----------------------------------------------------')
-
-                    // if (result.pageNumber === pageNumber && result.itemsPerPage === itemsPerPage) {
-                    console.log(result)
                     setErrorsCounter(0);
                     setItems(result);
                     setPaginationDisabled(false);
                     setDataIsLoad(false);
-                    // }
                 }
 
             },
@@ -172,18 +157,24 @@ export const Main = ({
                                 color="inherit"
                                 size={'8em'}
                             />
-                        ) :
-                        items?.map((item) => {
-                            return (
-                                <ProductCard
-                                    key={item.id}
-                                    id={item.id}
-                                    product={item.product}
-                                    price={item.price}
-                                    brand={item.brand}
-                                />
+                        )
+                        :
+                        Array.isArray(items) ?
+                            items.map((item) => {
+                                return (
+                                    <ProductCard
+                                        key={item.id}
+                                        id={item.id}
+                                        product={item.product}
+                                        price={item.price}
+                                        brand={item.brand}
+                                    />
+                                )
+                            })
+                            :
+                            (
+                                <LoadErrorCard />
                             )
-                        })
 
                 }
             </Box>

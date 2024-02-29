@@ -1,9 +1,11 @@
 // import * as React from 'react';
 import Box from '@mui/material/Box';
 import { ValantisFilter, getFields, getIDs, getItems } from '@/components/SSR/ValantisAPI';
-import { Main } from '@/components/CSR/Main/Main';
+import { Main } from '@/components/CSR/Main/Main'; // Закомментировать если хотим запросы в API через сервер (не работает npm run build и соответственно на gitPages)
+// import { Main } from '@/components/CSR/Main/MainForSSR'; //Раскомментировать если хотим запросы в API через сервер (не работает npm run build и соответственно на gitPages)
 import { FilterPanel } from '@/components/CSR/FilterPanel/FilterPanel';
 
+/*  Раскомментировать если хотим запросы в API через сервер (не работает npm run build и соответственно на gitPages)
 async function getItemsForPage(IDs, pageNumber, itemsPerPage) {
   "use server"
   console.log('in getItemsForPage');
@@ -35,6 +37,7 @@ async function getIDSForPage() {
   let IDs = getIDs();
   return IDs;
 }
+*/
 
 export default async function HomePage() {
   console.log('*** in HomePage ***');
@@ -61,8 +64,8 @@ export default async function HomePage() {
       />
 
       <Main
-        getIDSForPage={getIDSForPage}
-        getItemsForPage={getItemsForPage}
+      // getIDSForPage={getIDSForPage}      // Раскомментировать если хотим запросы в API через сервер (не работает npm run build и соответственно на gitPages)
+      // getItemsForPage={getItemsForPage}  // Раскомментировать если хотим запросы в API через сервер (не работает npm run build и соответственно на gitPages)
       />
     </Box>
   );

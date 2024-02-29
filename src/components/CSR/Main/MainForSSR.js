@@ -5,11 +5,10 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { ProductCard } from '../ProductCard/ProductCard';
 import { PaginationPanel } from '../PaginationPanel/PaginationPanel';
 import { useCallback, useEffect, useState } from 'react';
-import { ValantisFilter, getFields, getIDs, getItems } from '@/components/SSR/ValantisAPI';
 
 export const Main = ({
-    // getIDSForPage,
-    // getItemsForPage,
+    getIDSForPage,
+    getItemsForPage,
 }) => {
     const [dataIsLoad, setDataIsLoad] = useState(true);
     const [paginationDisabled, setPaginationDisabled] = useState(true);
@@ -22,6 +21,7 @@ export const Main = ({
 
     const MAX_REPEAT_REQ = 5
     const REPEAT_REQ_VIA = 1000
+    // let IDs = getIDs();
 
     const cbChangePage = useCallback((event, page) => {
         // console.log(event)
@@ -32,9 +32,7 @@ export const Main = ({
 
     const updateDataInPage = () => {
         setPaginationDisabled(true);
-        console.log(IDs)
-        console.log(IDs[pageNumber - 1])
-        getItems(IDs[pageNumber - 1]).then(
+        getItemsForPage(IDs, pageNumber, itemsPerPage).then(
             (result) => {
                 // обработает успешное выполнение 
                 if (typeof result.items === 'string') {
@@ -51,22 +49,21 @@ export const Main = ({
                     }
                 }
                 else {
-                    //             console.log('----------------------------------------------------')
-                    //             console.log(pageNumber)
-                    //             console.log(result.pageNumber)
-                    //             console.log(result.pageNumber === pageNumber)
-                    //             console.log(itemsPerPage)
-                    //             console.log(result.itemsPerPage)
-                    //             console.log(result.itemsPerPage === itemsPerPage)
-                    //             console.log('----------------------------------------------------')
+                    console.log('----------------------------------------------------')
+                    console.log(pageNumber)
+                    console.log(result.pageNumber)
+                    console.log(result.pageNumber === pageNumber)
+                    console.log(itemsPerPage)
+                    console.log(result.itemsPerPage)
+                    console.log(result.itemsPerPage === itemsPerPage)
+                    console.log('----------------------------------------------------')
 
-                    // if (result.pageNumber === pageNumber && result.itemsPerPage === itemsPerPage) {
-                    console.log(result)
-                    setErrorsCounter(0);
-                    setItems(result);
-                    setPaginationDisabled(false);
-                    setDataIsLoad(false);
-                    // }
+                    if (result.pageNumber === pageNumber && result.itemsPerPage === itemsPerPage) {
+                        setErrorsCounter(0);
+                        setItems(result.Items);
+                        setPaginationDisabled(false);
+                        setDataIsLoad(false);
+                    }
                 }
 
             },
@@ -84,33 +81,18 @@ export const Main = ({
                     );
                 }
             }
-
         );
     }
 
     const updateIDsForPage = () => {
-        getIDs().then(
+        getIDSForPage().then(
             (result) => {
                 if (typeof result === 'string') {
                     console.error(result);
-                    setErrorsCounter(errorsCounter + 1);
-                    if (errorsCounter < MAX_REPEAT_REQ) {
-                        setTimeout(updateIDsForPage, REPEAT_REQ_VIA);
-                    }
-                    else {
-                        console.error(
-                            `Выполнено подряд ${MAX_REPEAT_REQ} неудачных запросов через каждые ${REPEAT_REQ_VIA}мс.\n` +
-                            `Попробуйте перезагрузить страницу.`
-                        );
-                    }
+                    updateIDsForPage();
                 }
                 else {
-                    let IDsInPages = [];
-                    for (let i = 0; i < result.length; i += itemsPerPage) {
-                        IDsInPages.push(result.slice(i, i + itemsPerPage));
-                        // do whatever
-                    }
-                    setIDs(IDsInPages);
+                    setIDs(result);
                 }
             },
             (error) => {
@@ -132,7 +114,7 @@ export const Main = ({
 
     useEffect(() => {
         if (IDs) {
-            setPagesCount(IDs.length);
+            setPagesCount(Math.ceil(IDs.length / itemsPerPage));
             updateDataInPage();
         }
         else {

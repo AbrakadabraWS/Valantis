@@ -2,6 +2,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import styles from './FilterPanel.module.css'
 import { Box, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
+import { BasicSelect } from '../Select/Basic/BasicSelect';
+import { ChipSelect } from '../Select/Chip/ChipSelect';
 
 
 const itemsPerPageList = [
@@ -27,56 +29,35 @@ const itemsPerPageList = [
     },
 ]
 
-
-const FilterPanelSelect = ({
-    id,
-    sx,
-    value,
-    lable,
-    menuItems,
-    onChange = () => { },
-}) => {
-    return (
-        <FormControl
-            id={`FilterPanel__selectForm__${id}`}
-            fullWidth
-            sx={sx}
-        >
-            <InputLabel id={`FilterPanel__selectLabel__${id}`}>{lable}</InputLabel>
-            <Select
-                labelId={`FilterPanel__selectLabel__${id}`}
-                id={`FilterPanel__select__${id}`}
-                value={value}
-                label={lable}
-                onChange={onChange}
-            >
-                {
-                    menuItems.map((menuItemData) => {
-                        return <MenuItem key={`${id}__MenuItem__${menuItemData.value}__${menuItemData.text}`} value={menuItemData.value}>{menuItemData.text}</MenuItem>;
-                    })
-                }
-            </Select>
-        </FormControl>
-    );
-}
-
-
-
 export const FilterPanel = ({
     sx,
     getFields = async () => { },
 }) => {
     const [itemsPerPage, setItemsPerPage] = useState(itemsPerPageList[3].value);
 
-    const [brandsList, setBrandsList] = useState([{ value: 0, text: 'Все' }]);
-    const [brand, setBrand] = useState(brandsList[0].value);
+    const [brandsList, setBrandsList] = useState(['Все']);
+    const [brand, setBrand] = useState([brandsList[0]]);
 
     const cbSelect__itemsPerPage = useCallback((event) => {
         setItemsPerPage(event.target.value);
     }, []);
 
     const cbSelect__brand = useCallback((event) => {
-        setBrand(event.target.value);
+        let {
+            target: { value },
+        } = event;
+
+        if ((value.length > 1 && value[value.length - 1] === 'Все') || value.length === 0) {
+            value = ['Все'];
+        }
+        else if (value.length > 1 && value.indexOf('Все') !== -1) {
+            value.splice(value.indexOf('Все'), 1);
+        }
+
+        setBrand(
+            // On autofill we get a stringified value.
+            typeof value === 'string' ? value.split(',') : value,
+        );
     }, []);
 
     useEffect(() => {
@@ -88,21 +69,16 @@ export const FilterPanel = ({
                 else {
                     result = result.map((brandItem, brandIndex) => {
                         if (brandItem === null) {
-                            return {
-                                value: brandIndex + 1,
-                                text: 'No name',
-                            };
+                            return 'No name';
                         }
                         else {
-                            return {
-                                value: brandIndex + 1,
-                                text: brandItem,
-                            };
-                        }
+                            return brandItem;
+                        };
+
                     });
-                    result.unshift({ value: 0, text: 'Все' });
-                    setBrandsList(result);
                 }
+                result.unshift('Все');
+                setBrandsList(result);
             },
             (error) => {
                 console.error(error)
@@ -119,7 +95,7 @@ export const FilterPanel = ({
                 px: 1,
             }}
         >
-            <FilterPanelSelect
+            <BasicSelect
                 id={'itemsPerPage'}
                 value={itemsPerPage}
                 lable={'Элементов на странице'}
@@ -127,7 +103,8 @@ export const FilterPanel = ({
                 onChange={cbSelect__itemsPerPage}
             />
 
-            <FilterPanelSelect
+
+            <ChipSelect
                 id={'brand'}
                 sx={{
                     mt: 2,

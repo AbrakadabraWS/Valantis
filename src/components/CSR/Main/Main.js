@@ -12,6 +12,9 @@ export const Main = ({
     // getIDSForPage,
     // getItemsForPage,
 }) => {
+    const MAX_REPEAT_REQ = 5;
+    const REPEAT_REQ_VIA = 1000;
+
     const [dataIsLoad, setDataIsLoad] = useState(true);
     const [paginationDisabled, setPaginationDisabled] = useState(true);
     const [pagesCount, setPagesCount] = useState(1);
@@ -20,9 +23,6 @@ export const Main = ({
     const [itemsPerPage, setItemsPerPage] = useState(50);
     const [items, setItems] = useState(null);
     const [errorsCounter, setErrorsCounter] = useState(0);
-
-    const MAX_REPEAT_REQ = 5
-    const REPEAT_REQ_VIA = 1000
 
     const cbChangePage = useCallback((event, page) => {
         setDataIsLoad(true);

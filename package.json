@@ -21,6 +21,7 @@
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "react-number-format": "^5.3.3",
     "server-only": "^0.0.1"
   },
   "devDependencies": {

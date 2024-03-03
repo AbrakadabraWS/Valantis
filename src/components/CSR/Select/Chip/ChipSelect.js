@@ -58,7 +58,6 @@ export const ChipSelect = ({
                     }
                     renderValue={
                         (selected) => {
-                            console.log(selected)
                             return (
                                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                                     {selected.map((value) => (

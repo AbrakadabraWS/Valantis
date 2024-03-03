@@ -1,10 +1,11 @@
 'use client'
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { ContextFilterData } from '../Providers/Providers';
 import styles from './Main.module.css'
 import { Box } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import { ProductCard } from '../ProductCard/ProductCard';
 import { PaginationPanel } from '../PaginationPanel/PaginationPanel';
-import { useCallback, useEffect, useState } from 'react';
 import { ValantisFilter, getFields, getIDs, getItems } from '@/components/SSR/ValantisAPI';
 import { LoadErrorCard } from '../LoadErrorCard/LoadErrorCard';
 
@@ -15,14 +16,18 @@ export const Main = ({
     const MAX_REPEAT_REQ = 5;
     const REPEAT_REQ_VIA = 1000;
 
+    const { filterData, setFiletrData } = useContext(ContextFilterData);
+
     const [dataIsLoad, setDataIsLoad] = useState(true);
     const [paginationDisabled, setPaginationDisabled] = useState(true);
     const [pagesCount, setPagesCount] = useState(1);
     const [pageNumber, setPageNumber] = useState(1);
     const [IDs, setIDs] = useState(null);
-    const [itemsPerPage, setItemsPerPage] = useState(50);
+    const [itemsPerPage, setItemsPerPage] = useState(filterData.itemsPerPage);
     const [items, setItems] = useState(null);
     const [errorsCounter, setErrorsCounter] = useState(0);
+
+
 
     const cbChangePage = useCallback((event, page) => {
         setDataIsLoad(true);
@@ -48,6 +53,7 @@ export const Main = ({
                     }
                 }
                 else {
+                    console.log('data is load')
                     setErrorsCounter(0);
                     setItems(result);
                     setPaginationDisabled(false);
@@ -116,6 +122,8 @@ export const Main = ({
     }
 
     useEffect(() => {
+        console.log('rerender')
+
         if (IDs) {
             setPagesCount(IDs.length);
             updateDataInPage();
@@ -127,6 +135,12 @@ export const Main = ({
         }
     }, [IDs, pageNumber]);
 
+    useEffect(() => {
+        console.log('filterData')
+        console.log(filterData)
+        setItemsPerPage(filterData.itemsPerPage);
+        setIDs(null); // вызываем заново пересчет всего что на странице
+    }, [filterData]);
     return (
         <Box
             // className={styles.main}

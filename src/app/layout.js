@@ -2,6 +2,7 @@ import * as React from 'react';
 import './global.css';
 import ThemeRegistry from '@/components/ThemeRegistry/ThemeRegistry';
 import { Box } from '@mui/material';
+import { Providers } from '@/components/CSR/Providers/Providers';
 
 export const metadata = {
   title: 'Тестовое задание',
@@ -15,26 +16,28 @@ export default function RootLayout({ children }) {
     <html lang="ru">
       <body>
         <ThemeRegistry>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              flex: '1 0 auto',
-            }}
-          >
-
-            {children}
+          <Providers>
             <Box
               sx={{
                 display: 'flex',
-                flex: '0 0 auto',
-                justifyContent: 'center',
-                borderTop: '2px solid #ebebeb',
+                flexDirection: 'column',
+                flex: '1 0 auto',
               }}
             >
-              By Abrakadabra worckshop 2024
+
+              {children}
+              <Box
+                sx={{
+                  display: 'flex',
+                  flex: '0 0 auto',
+                  justifyContent: 'center',
+                  borderTop: '2px solid #ebebeb',
+                }}
+              >
+                By Abrakadabra worckshop 2024
+              </Box>
             </Box>
-          </Box>
+          </Providers>
         </ThemeRegistry>
       </body>
     </html>

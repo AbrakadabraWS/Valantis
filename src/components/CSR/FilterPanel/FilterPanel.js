@@ -1,10 +1,11 @@
 'use client'
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import styles from './FilterPanel.module.css'
 import { Box, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
 import { BasicSelect } from '../Select/Basic/BasicSelect';
 import { ChipSelect } from '../Select/Chip/ChipSelect';
 import SetPrice from '../SetPrice/SetPrice';
+import { ContextFilterData } from '../Providers/Providers';
 
 
 const itemsPerPageList = [
@@ -39,8 +40,15 @@ function compareNumeric(a, b) {
 export const FilterPanel = ({
     sx,
     getFields = async () => { },
+    onChangeFilter = ({
+        itemsPerPage,
+        brand,
+        price,
+    }) => { }
 }) => {
     const REPEAT_REQ_VIA = 100;
+
+    const { filterData, setFiletrData } = useContext(ContextFilterData);
 
     const [itemsPerPage, setItemsPerPage] = useState(itemsPerPageList[3].value);
 
@@ -124,6 +132,13 @@ export const FilterPanel = ({
         setPrice(newPrice);
     }, []);
 
+    const cbOnClick__ButtonApply = useCallback(() => {
+        setFiletrData({
+            itemsPerPage,
+            brand,
+            price,
+        })
+    }, [itemsPerPage, brand, price])
 
     useEffect(() => {
         getBrandList();
@@ -174,6 +189,7 @@ export const FilterPanel = ({
                 }}
                 variant="contained"
                 color="success"
+                onClick={cbOnClick__ButtonApply}
             >
                 Применить
             </Button>

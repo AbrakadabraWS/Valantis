@@ -40,11 +40,6 @@ function compareNumeric(a, b) {
 export const FilterPanel = ({
     sx,
     getFields = async () => { },
-    onChangeFilter = ({
-        itemsPerPage,
-        brand,
-        price,
-    }) => { }
 }) => {
     const REPEAT_REQ_VIA = 100;
 
@@ -135,8 +130,8 @@ export const FilterPanel = ({
     const cbOnClick__ButtonApply = useCallback(() => {
         setFiletrData({
             itemsPerPage,
-            brand,
-            price,
+            brand: brand.length === brandsList.length ? ['Все'] : brand,
+            price: price.length === priceList.length ? null : price,
         })
     }, [itemsPerPage, brand, price])
 

@@ -34,23 +34,27 @@ export const Main = ({
         setPageNumber(page);
     }, []);
 
+    const sendReqErrorMessage = (errorMessage, repeatFunction) => {
+        console.error(errorMessage)
+        setErrorsCounter(errorsCounter + 1);
+        if (errorsCounter < MAX_REPEAT_REQ) {
+            setTimeout(repeatFunction, REPEAT_REQ_VIA);
+        }
+        else {
+            console.error(
+                `Выполнено подряд ${MAX_REPEAT_REQ} неудачных запросов через каждые ${REPEAT_REQ_VIA}мс.\n` +
+                `Попробуйте перезагрузить страницу.`
+            );
+        }
+    }
+
     const updateDataInPage = () => {
         setPaginationDisabled(true);
         getItems(IDs[pageNumber - 1]).then(
             (result) => {
                 // обработает успешное выполнение 
                 if (typeof result.items === 'string') {
-                    console.error(result.items);
-                    setErrorsCounter(errorsCounter + 1);
-                    if (errorsCounter < MAX_REPEAT_REQ) {
-                        setTimeout(updateDataInPage, REPEAT_REQ_VIA);
-                    }
-                    else {
-                        console.error(
-                            `Выполнено подряд ${MAX_REPEAT_REQ} неудачных запросов через каждые ${REPEAT_REQ_VIA}мс.\n` +
-                            `Попробуйте перезагрузить страницу.`
-                        );
-                    }
+                    sendReqErrorMessage(result.items, updateDataInPage);
                 }
                 else {
                     console.log('data is load')
@@ -63,17 +67,7 @@ export const Main = ({
             },
             (error) => {
                 // обработает ошибку
-                console.error(`in getItemsForPage error: ${error}`)
-                setErrorsCounter(errorsCounter + 1);
-                if (errorsCounter < MAX_REPEAT_REQ) {
-                    setTimeout(updateDataInPage, REPEAT_REQ_VIA);
-                }
-                else {
-                    console.error(
-                        `Выполнено подряд ${MAX_REPEAT_REQ} неудачных запросов через каждые ${REPEAT_REQ_VIA}мс.\n` +
-                        `Попробуйте перезагрузить страницу.`
-                    );
-                }
+                sendReqErrorMessage(`Ошибка во время запроса данных карточек: ${error}`, updateDataInPage);
             }
 
         );
@@ -83,17 +77,7 @@ export const Main = ({
         getIDs().then(
             (result) => {
                 if (typeof result === 'string') {
-                    console.error(result);
-                    setErrorsCounter(errorsCounter + 1);
-                    if (errorsCounter < MAX_REPEAT_REQ) {
-                        setTimeout(updateIDsForPage, REPEAT_REQ_VIA);
-                    }
-                    else {
-                        console.error(
-                            `Выполнено подряд ${MAX_REPEAT_REQ} неудачных запросов через каждые ${REPEAT_REQ_VIA}мс.\n` +
-                            `Попробуйте перезагрузить страницу.`
-                        );
-                    }
+                    sendReqErrorMessage(result, updateIDsForPage);
                 }
                 else {
                     let IDsInPages = [];
@@ -106,23 +90,82 @@ export const Main = ({
             },
             (error) => {
                 // обработает ошибку
-                console.error(`in updateIDsForPage error: ${error}`)
-                setErrorsCounter(errorsCounter + 1);
-                if (errorsCounter < MAX_REPEAT_REQ) {
-                    setTimeout(updateIDsForPage, REPEAT_REQ_VIA);
-                }
-                else {
-                    console.error(
-                        `Выполнено подряд ${MAX_REPEAT_REQ} неудачных запросов через каждые ${REPEAT_REQ_VIA}мс.\n` +
-                        `Попробуйте перезагрузить страницу.`
-                    );
-                }
+                sendReqErrorMessage(`Ошибка во время запроса ID карточек: ${error}`, updateIDsForPage);
             }
         )
     }
 
+    const getFilterData = async (filterData) => {
+        let errorCounter = MAX_REPEAT_REQ;
+
+        console.log(filterData)
+        let result = [];
+        let filterBrandResult = {
+            IDs: [],
+            errorsArray: []
+        };
+        let filterPriceResult = {
+            IDs: [],
+            errorsArray: []
+        };;
+
+        // получим ID после фильтрации по бренду
+        if ((!filterData.brand.includes('Все')) || !filterData.brand) {
+            console.log('in brand')
+            filterBrandResult = await ValantisFilter({
+                field: 'brand',
+                values: filterData.brand,
+                errorCounter: errorCounter,
+            });
+
+            if (filterBrandResult.errors) {
+                filterBrandResult.errors.forEach((error) => console.error(error));
+            }
+        }
+        console.log('end brands')
+        // получим ID после фильтрации по цене
+        if (filterData.price) {
+            console.log('in price')
+            filterPriceResult = await ValantisFilter({
+                field: 'price',
+                values: filterData.price,
+                errorCounter: errorCounter,
+            });
+
+            if (filterPriceResult.errors) {
+                filterPriceResult.errors.forEach((error) => console.error(error));
+            }
+        }
+        console.log('end price')
+
+        // обрабатываем результаты
+        console.log(filterBrandResult)
+        console.log(filterPriceResult)
+        if (filterBrandResult.IDs.length > 0 && filterPriceResult.IDs.length > 0) {
+            // Если ID есть и от фильтра брендов и от фильтра
+            filterBrandResult.IDs.forEach((brandID) => {
+                if (filterPriceResult.IDs.includes(brandID)) {
+                    result.push(brandID);
+                }
+            });
+        }
+        else {
+            // Если ID есть только от фильтра брендов или фильтра цен или их вовсе нет
+            if (filterBrandResult.IDs.length) {
+                // Если ID есть только от фильтра брендов
+                result = filterBrandResult.IDs;
+            }
+            else {
+                // Тут уже не важно есть ID от фильтра цен или нет потому что если даже нет то запишем пустой массив в результат
+                result = filterPriceResult.IDs;
+            }
+        }
+        console.log('----------------------------------')
+        return result;
+    }
+
     useEffect(() => {
-        console.log('rerender')
+        console.log('rerender Effect')
 
         if (IDs) {
             setPagesCount(IDs.length);
@@ -130,17 +173,39 @@ export const Main = ({
         }
         else {
             setDataIsLoad(true);
-            console.error('Первый запрос IDs')
+            console.warn('Первый запрос IDs')
             updateIDsForPage();
         }
     }, [IDs, pageNumber]);
 
     useEffect(() => {
-        console.log('filterData')
+        console.log('filterData  Effect')
         console.log(filterData)
-        setItemsPerPage(filterData.itemsPerPage);
-        setIDs(null); // вызываем заново пересчет всего что на странице
+
+
+
+        if (
+            ((!filterData.brand.includes('Все')) || !filterData.brand) ||
+            filterData.price
+        ) {
+            setDataIsLoad(true);
+            getFilterData(filterData).then(
+                (result) => {
+                    console.log(result)
+                    setItemsPerPage(filterData.itemsPerPage);
+                    setIDs(result); // вызываем заново пересчет всего что на странице
+                }
+            );
+        }
+        else {
+            if (filterData.itemsPerPage !== itemsPerPage) {
+                setDataIsLoad(true);
+                setItemsPerPage(filterData.itemsPerPage);
+                setIDs(null); // вызываем заново пересчет всего что на странице
+            }
+        }
     }, [filterData]);
+
     return (
         <Box
             // className={styles.main}

@@ -43,14 +43,8 @@ async function getIDSForPage() {
 */
 
 export default async function HomePage() {
-  console.log('*** in HomePage ***');
-
-  // let fields = await getFields({ field: 'brand' });
-
-  // let filter = await ValantisFilter({ field: 'brand', value: 'Mauboussin' });
-
+  // console.log('*** in HomePage ***');
   const cbGetFields = async (field) => {
-    console.log(field)
     return getFields({ field: field });
   }
 

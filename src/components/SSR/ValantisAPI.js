@@ -43,7 +43,7 @@ const checkItemArrayRepetitions = (itemArray) => {
 }
 
 export const ValantisAPIPOSTrequest = async (raw) => {
-    console.log('*** in ValantisAPIPOSTrequest ***');
+    // console.log('*** in ValantisAPIPOSTrequest ***');
 
     let ValantisRes;
 
@@ -81,7 +81,7 @@ export const getIDs = async (
     limit = 0,
     // offset = 0
 ) => {
-    console.log('*** in getIDs ***');
+    // console.log('*** in getIDs ***');
 
     let ids;
 
@@ -116,7 +116,7 @@ export const getIDs = async (
  * @param {[String]} ids  - упорядоченный список строк. Определяет идентификаторы товаров, которые будут возвращены.
  */
 export const getItems = async (ids = []) => {
-    console.log('*** in getItems ***');
+    // console.log('*** in getItems ***');
 
     let items;
 
@@ -161,7 +161,7 @@ export const getItems = async (ids = []) => {
  * @param {Number} offset - положительное целое число. Определяет желаемое число возвращаемых записей.
  */
 export const getFields = async ({ field, limit, offset }) => {
-    console.log('*** in getFields ***');
+    // console.log('*** in getFields ***');
 
     let fieldsArray = [];
 
@@ -202,23 +202,65 @@ export const getFields = async ({ field, limit, offset }) => {
 // Для остальных полей проверяется строгое соответствие.
 
 
-export const ValantisFilter = async ({ field, value }) => {
+export const ValantisFilter = async ({
+    field,
+    values,
+    startErrorCounter = 5,
+}) => {
     console.log('*** in Filter ***');
     let filterArray = [];
     let rawInJSON = {
         'action': 'filter',
     };
+    let resultFromOneReq
+    let errorCounter = startErrorCounter
+    let errorsArray = []
 
-    if (FIELDS_VARIANTS.includes(field)) {
-        rawInJSON.params = { [`${field}`]: value };
+    for (let index = 0; index < values.length; index++) {
+        if (FIELDS_VARIANTS.includes(field)) {
+            rawInJSON.params = { [`${field}`]: values[index] === 'No name' ? null : values[index] };
+        }
+        else {
+            errorsArray.push('Передано не верное значение аргумента field');
+            return {
+                filterArray: [],
+                errorsArray: errorsArray,
+            }
+        }
+
+        const request = async () => {
+            console.log(rawInJSON)
+            let tempResultData = await ValantisAPIPOSTrequest(
+                JSON.stringify(rawInJSON)
+            );
+
+            if ((!tempResultData) || (typeof tempResultData === 'string')) {
+                errorsArray.push(`Ошибка запроса отфильтраванных IDs: ${tempResultData}`);
+                if (errorCounter >= 0) {
+                    errorCounter--;
+                    return await request();
+                }
+                else {
+                    errorsArray.push(
+                        `Выполнено подряд ${errorCounter} неудачных запросов.`);
+                    return
+                }
+            }
+
+            return tempResultData;
+        }
+
+        resultFromOneReq = await request();
+        if (resultFromOneReq) {
+            errorCounter = startErrorCounter;
+            filterArray.push(...resultFromOneReq);
+        }
     }
-    else {
-        return 'Передано не верное значение аргумента field';
+
+    filterArray = checkArrayRepetitions(filterArray);
+
+    return {
+        IDs: filterArray,
+        errorsArray: errorsArray,
     }
-
-    filterArray = await ValantisAPIPOSTrequest(
-        JSON.stringify(rawInJSON)
-    );
-
-    return filterArray;
 };  

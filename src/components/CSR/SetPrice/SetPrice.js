@@ -77,7 +77,6 @@ export default function SetPrice({
     const [inputErrorStatus, setInputErrorStatus] = useState(false);
 
     const handleChange = (event) => {
-        console.log(event.target)
         const newValues = {
             ...values,
             [event.target.name]: event.target.value,
@@ -85,12 +84,10 @@ export default function SetPrice({
 
         if (Number(newValues.from) > Number(newValues.to)) {
             setInputErrorStatus(true);
-            console.log('in if true')
             console.error('Filter SetPrice error:Значение начальной суммы дольжно быть меньше значения конечной сумыы!');
         }
         else {
             setInputErrorStatus(false);
-            console.log('in if false')
         }
 
         let newPrice = [];

@@ -13,7 +13,7 @@ export const ProductCard = ({
         <Card
             sx={{
                 display: 'flex',
-                flex: '1 0 auto',
+                flex: '0 0 auto',
                 m: 1,
                 minWidth: 370,
             }}

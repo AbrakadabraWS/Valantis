@@ -182,8 +182,6 @@ export const Main = ({
         console.log('filterData  Effect')
         console.log(filterData)
 
-
-
         if (
             ((!filterData.brand.includes('Все')) || !filterData.brand) ||
             filterData.price
@@ -193,7 +191,17 @@ export const Main = ({
                 (result) => {
                     console.log(result)
                     setItemsPerPage(filterData.itemsPerPage);
-                    setIDs(result); // вызываем заново пересчет всего что на странице
+                    if (result) {
+                        let IDsInPages = [];
+                        for (let i = 0; i < result.length; i += itemsPerPage) {
+                            IDsInPages.push(result.slice(i, i + itemsPerPage));
+                            // do whatever
+                        }
+                        setIDs(IDsInPages);
+                    }
+                    else {
+                        setIDs(null); // вызываем заново пересчет всего что на странице
+                    }
                 }
             );
         }

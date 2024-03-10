@@ -59,9 +59,20 @@ export const ChipSelect = ({
                     renderValue={
                         (selected) => {
                             return (
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                <Box
+                                    id={`ChipSelect__renderValue__${id}`}
+                                    sx={{
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
+                                        gap: 0.5
+                                    }}
+                                >
                                     {selected.map((value) => (
-                                        <Chip key={value} label={value} />
+                                        <Chip
+                                            id={`ChipSelect__Chip__${id}__${value}`}
+                                            key={value}
+                                            label={value}
+                                        />
                                     ))}
                                 </Box>
                             );

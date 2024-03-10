@@ -8,6 +8,7 @@ export const Providers = ({ children }) => {
         itemsPerPage: 50,
         brand: ['Все'],
         price: null,
+        name: '',
     });
 
     const value = useMemo(() => ({ filterData, setFiletrData }), [filterData]);

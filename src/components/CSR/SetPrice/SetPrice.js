@@ -5,28 +5,6 @@ import PropTypes from 'prop-types';
 import { NumericFormat } from 'react-number-format';
 import { FormControl, Stack, TextField, Alert } from '@mui/material';
 
-
-// const TextMaskCustom = React.forwardRef(function TextMaskCustom(props, ref) {
-//     const { onChange, ...other } = props;
-//     return (
-//         <IMaskInput
-//             {...other}
-//             mask="(#00) 000-0000"
-//             definitions={{
-//                 '#': /[1-9]/,
-//             }}
-//             inputRef={ref}
-//             onAccept={(value) => onChange({ target: { name: props.name, value } })}
-//             overwrite
-//         />
-//     );
-// });
-
-// TextMaskCustom.propTypes = {
-//     name: PropTypes.string.isRequired,
-//     onChange: PropTypes.func.isRequired,
-// };
-
 const NumericFormatCustom = forwardRef(             // forwardRef(), чтобы позволить компоненту получить ref родителя и передать дочернему компоненту
     function NumericFormatCustom(props, ref) {
         const { onChange, ...other } = props;
@@ -64,12 +42,12 @@ NumericFormatCustom.propTypes = {
     onChange: PropTypes.func.isRequired,
 };
 
-export default function SetPrice({
+export const SetPrice = ({
     id,
     sx,
     priceList,
     onChange = (newPrice) => { },
-}) {
+}) => {
     const [values, setValues] = useState({
         from: priceList[0] || '0',
         to: priceList[priceList.length - 1] || '0',
@@ -113,12 +91,13 @@ export default function SetPrice({
 
     return (
         <FormControl
-            id={`BasicSelectForm__${id}`}
+            id={`SetPriceForm__${id}`}
             fullWidth
             sx={sx}
         >
             Цена:
             <Stack
+                id={`SetPriceStack__${id}`}
                 sx={sx}
                 direction="row"
                 spacing={2}
@@ -129,7 +108,7 @@ export default function SetPrice({
                     value={values.from}
                     onChange={handleChange}
                     name="from"
-                    id="formatted-numberformat-input"
+                    id={`SetPriceTextField__From${id}`}
                     InputProps={{
                         inputComponent: NumericFormatCustom,
                     }}
@@ -140,7 +119,7 @@ export default function SetPrice({
                     value={values.to}
                     onChange={handleChange}
                     name="to"
-                    id="formatted-numberformat-input"
+                    id={`SetPriceTextField__To${id}`}
                     // InputProps:
                     // Prop, применяемые к элементу ввода. 
                     // Это будет FilledInput, OutlinedInput или Input в зависимости от значения параметра prop.
@@ -152,6 +131,7 @@ export default function SetPrice({
             {
                 inputErrorStatus &&
                 <Alert
+                    id={`SetPriceAlert__${id}`}
                     sx={{ mt: 1 }}
                     variant="outlined"
                     severity="error"

@@ -4,8 +4,9 @@ import styles from './FilterPanel.module.css'
 import { Box, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
 import { BasicSelect } from '../Select/Basic/BasicSelect';
 import { ChipSelect } from '../Select/Chip/ChipSelect';
-import SetPrice from '../SetPrice/SetPrice';
+import { SetPrice } from '../SetPrice/SetPrice';
 import { ContextFilterData } from '../Providers/Providers';
+import { NameSearch } from '../NameSearch/NameSearch';
 
 
 const itemsPerPageList = [
@@ -50,8 +51,10 @@ export const FilterPanel = ({
     const [brandsList, setBrandsList] = useState(['Все']);
     const [brand, setBrand] = useState([brandsList[0]]);
 
-    const [priceList, setPriceList] = useState([0]);
-    const [price, setPrice] = useState(null);
+    // const [priceList, setPriceList] = useState([0]);
+    // const [price, setPrice] = useState(null);
+
+    const [nameSeatch, setNameSeatch] = useState('');
 
     const getBrandList = () => {
         getFields('brand').then(
@@ -123,17 +126,23 @@ export const FilterPanel = ({
         );
     }, []);
 
-    const cbOnChange__price = useCallback((newPrice) => {
-        setPrice(newPrice);
+    // const cbOnChange__price = useCallback((newPrice) => {
+    //     setPrice(newPrice);
+    // }, []);
+
+    const cbOnChange__NameSeatch = useCallback((name) => {
+        console.log(name)
+        setNameSeatch(name)
     }, []);
 
     const cbOnClick__ButtonApply = useCallback(() => {
         setFiletrData({
             itemsPerPage,
             brand: brand.length === brandsList.length ? ['Все'] : brand,
-            price: price.length === priceList.length ? null : price,
+            // price: price.length === priceList.length ? null : price,
+            name: nameSeatch,
         })
-    }, [itemsPerPage, brand, price])
+    }, [itemsPerPage, brand, nameSeatch])   // нет price
 
     useEffect(() => {
         getBrandList();
@@ -169,15 +178,22 @@ export const FilterPanel = ({
                 onChange={cbOnChange__brand}
             />
 
-            <SetPrice
+            {/* <SetPrice
                 id={'price'}
                 sx={{
                     mt: 2,
                 }}
                 priceList={priceList}
                 onChange={cbOnChange__price}
-            />
+            /> */}
 
+            <NameSearch
+                id={'NameSearch'}
+                sx={{
+                    mt: 2,
+                }}
+                onChange={cbOnChange__NameSeatch}
+            />
             <Button
                 sx={{
                     mt: 2,

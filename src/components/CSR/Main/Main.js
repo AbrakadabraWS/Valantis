@@ -8,6 +8,7 @@ import { ProductCard } from '../ProductCard/ProductCard';
 import { PaginationPanel } from '../PaginationPanel/PaginationPanel';
 import { ValantisFilter, getFields, getIDs, getItems } from '@/components/SSR/ValantisAPI';
 import { LoadErrorCard } from '../LoadErrorCard/LoadErrorCard';
+import { NoResultsCard } from '../NoResultsCard/NoResultsCard';
 
 export const Main = ({
     // getIDSForPage,
@@ -50,26 +51,34 @@ export const Main = ({
 
     const updateDataInPage = () => {
         setPaginationDisabled(true);
-        getItems(IDs[pageNumber - 1]).then(
-            (result) => {
-                // обработает успешное выполнение 
-                if (typeof result.items === 'string') {
-                    sendReqErrorMessage(result.items, updateDataInPage);
-                }
-                else {
-                    setErrorsCounter(0);
-                    setItems(result);
-                    setPaginationDisabled(false);
-                    setDataIsLoad(false);
+        if (IDs.length) {
+            getItems(IDs[pageNumber - 1]).then(
+                (result) => {
+                    // обработает успешное выполнение 
+                    if (typeof result.items === 'string') {
+                        sendReqErrorMessage(result.items, updateDataInPage);
+                    }
+                    else {
+                        setErrorsCounter(0);
+                        setItems(result);
+                        setPaginationDisabled(false);
+                        setDataIsLoad(false);
+                    }
+
+                },
+                (error) => {
+                    // обработает ошибку
+                    sendReqErrorMessage(`Ошибка во время запроса данных карточек: ${error}`, updateDataInPage);
                 }
 
-            },
-            (error) => {
-                // обработает ошибку
-                sendReqErrorMessage(`Ошибка во время запроса данных карточек: ${error}`, updateDataInPage);
-            }
-
-        );
+            );
+        }
+        else {
+            console.log('ничего не нашлось')
+            setItems([]);
+            setPaginationDisabled(false);
+            setDataIsLoad(false);
+        }
     }
 
     const updateIDsForPage = () => {
@@ -164,14 +173,14 @@ export const Main = ({
         // console.log('end price')
 
         // обрабатываем результаты
-        // console.log(filterBrandResult)
-        // console.log(filterProductResult)
+        console.log(filterBrandResult)
+        console.log(filterProductResult)
         // console.log(filterPriceResult)
 
-        if (                                                                            // Если ID есть
-            (filterBrandResult.IDs.length > 0 && filterProductResult.IDs.length > 0) // || // от фильтров бренда и продукта
-            // (filterProductResult.IDs.length > 0 && filterPriceResult.IDs.length > 0) || // от фильтров продукта и цены
-            // (filterPriceResult.IDs.length > 0 && filterBrandResult.IDs.length > 0)      // от фильтров цены и бренда
+        if (                                                                                       // Если ID есть
+            (((!filterData.brand.includes('Все')) || !filterData.brand) && filterData.name) // ||  // от фильтров бренда и продукта
+            // (filterData.name && filterData.price) ||                                            // от фильтров продукта и цены
+            // ((filterData.price && (!filterData.brand.includes('Все'))) || !filterData.brand)    // от фильтров цены и бренда
         ) {
             filterBrandResult.IDs.forEach((brandID) => {
                 if (
@@ -196,17 +205,18 @@ export const Main = ({
                 result = filterPriceResult.IDs;
             }
         }
-        // console.log(result)
+        console.log(result)
         return result;
     }
 
     useEffect(() => {
-
         if (IDs) {
+            console.log('in true')
             setPagesCount(IDs.length);
             updateDataInPage();
         }
         else {
+            console.log('in false')
             setDataIsLoad(true);
             // console.warn('Первый запрос IDs')
             updateIDsForPage();
@@ -279,17 +289,20 @@ export const Main = ({
                         )
                         :
                         Array.isArray(items) ?
-                            items.map((item) => {
-                                return (
-                                    <ProductCard
-                                        key={item.id}
-                                        id={item.id}
-                                        product={item.product}
-                                        price={item.price}
-                                        brand={item.brand}
-                                    />
-                                )
-                            })
+                            items.length > 0 ?
+                                items.map((item) => {
+                                    return (
+                                        <ProductCard
+                                            key={item.id}
+                                            id={item.id}
+                                            product={item.product}
+                                            price={item.price}
+                                            brand={item.brand}
+                                        />
+                                    )
+                                })
+                                :
+                                (<NoResultsCard />)
                             :
                             (
                                 <LoadErrorCard />

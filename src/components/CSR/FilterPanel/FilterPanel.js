@@ -1,10 +1,9 @@
 'use client'
 import { useCallback, useContext, useEffect, useState } from 'react';
-import styles from './FilterPanel.module.css'
-import { Box, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { BasicSelect } from '../Select/Basic/BasicSelect';
 import { ChipSelect } from '../Select/Chip/ChipSelect';
-import { SetPrice } from '../SetPrice/SetPrice';
+// import { SetPrice } from '../SetPrice/SetPrice';
 import { ContextFilterData } from '../Providers/Providers';
 import { NameSearch } from '../NameSearch/NameSearch';
 
@@ -32,11 +31,11 @@ const itemsPerPageList = [
     },
 ]
 
-function compareNumeric(a, b) {
-    if (a > b) return 1;
-    if (a == b) return 0;
-    if (a < b) return -1;
-}
+// const compareNumeric = (a, b) => {
+//     if (a > b) return 1;
+//     if (a == b) return 0;
+//     if (a < b) return -1;
+// }
 
 export const FilterPanel = ({
     sx,

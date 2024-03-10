@@ -43,8 +43,7 @@ async function getIDSForPage() {
 */
 
 export default async function HomePage() {
-  // console.log('*** in HomePage ***');
-  const cbGetFields = async (field) => {
+  const cbGetFields = async (field) => {  // запрос списка имеющихся полей товаров.
     return getFields({ field: field });
   }
 

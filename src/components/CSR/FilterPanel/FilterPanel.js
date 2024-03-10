@@ -3,7 +3,7 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { Box, Button } from '@mui/material';
 import { BasicSelect } from '../Select/Basic/BasicSelect';
 import { ChipSelect } from '../Select/Chip/ChipSelect';
-// import { SetPrice } from '../SetPrice/SetPrice';
+import { SetPrice } from '../SetPrice/SetPrice';
 import { ContextFilterData } from '../Providers/Providers';
 import { NameSearch } from '../NameSearch/NameSearch';
 
@@ -31,11 +31,11 @@ const itemsPerPageList = [
     },
 ]
 
-// const compareNumeric = (a, b) => {
-//     if (a > b) return 1;
-//     if (a == b) return 0;
-//     if (a < b) return -1;
-// }
+const compareNumeric = (a, b) => {
+    if (a > b) return 1;
+    if (a == b) return 0;
+    if (a < b) return -1;
+}
 
 export const FilterPanel = ({
     sx,
@@ -45,13 +45,14 @@ export const FilterPanel = ({
 
     const { filterData, setFiletrData } = useContext(ContextFilterData);
 
+    const [reset, setReset] = useState(true);
     const [itemsPerPage, setItemsPerPage] = useState(itemsPerPageList[3].value);
 
     const [brandsList, setBrandsList] = useState(['Все']);
     const [brand, setBrand] = useState([brandsList[0]]);
 
-    // const [priceList, setPriceList] = useState([0]);
-    // const [price, setPrice] = useState(null);
+    const [priceList, setPriceList] = useState([0]);
+    const [price, setPrice] = useState(null);
 
     const [nameSeatch, setNameSeatch] = useState('');
 
@@ -84,24 +85,24 @@ export const FilterPanel = ({
         );
     }
 
-    // const getPriceList = () => {
-    //     getFields('price').then(
-    //         (result) => {
-    //             if (typeof result === 'string') {
-    //                 console.error(result);
-    //                 setTimeout(getBrandList(), REPEAT_REQ_VIA);
-    //             }
-    //             else {
-    //                 setPriceList(result.sort(compareNumeric))
-    //             }
-    //         },
-    //         (error) => {
-    //             console.error(error);
-    //             setTimeout(getBrandList(), REPEAT_REQ_VIA);
+    const getPriceList = () => {
+        getFields('price').then(
+            (result) => {
+                if (typeof result === 'string') {
+                    console.error(result);
+                    setTimeout(getBrandList(), REPEAT_REQ_VIA);
+                }
+                else {
+                    setPriceList(result.sort(compareNumeric))
+                }
+            },
+            (error) => {
+                console.error(error);
+                setTimeout(getBrandList(), REPEAT_REQ_VIA);
 
-    //         }
-    //     );
-    // }
+            }
+        );
+    }
 
     const cbOnChange__itemsPerPage = useCallback((event) => {
         setItemsPerPage(event.target.value);
@@ -125,9 +126,9 @@ export const FilterPanel = ({
         );
     }, []);
 
-    // const cbOnChange__price = useCallback((newPrice) => {
-    //     setPrice(newPrice);
-    // }, []);
+    const cbOnChange__price = useCallback((newPrice) => {
+        setPrice(newPrice);
+    }, []);
 
     const cbOnChange__NameSeatch = useCallback((name) => {
         setNameSeatch(name);
@@ -135,39 +136,44 @@ export const FilterPanel = ({
 
 
     const cbOnClick__ButtonClearFilter = useCallback(() => {
+
         if (
             itemsPerPage !== itemsPerPageList[3].value ||
             !brand.includes(brandsList[0]) ||
-            // price !== null ||
+            price.length !== priceList.length ||
             nameSeatch !== ''
         ) {
             setItemsPerPage(itemsPerPageList[3].value);
             setBrand([brandsList[0]]);
-            // setPrice(null);
+            setPrice(priceList);
             setNameSeatch('');
 
             setFiletrData({
                 itemsPerPage: itemsPerPageList[3].value,
                 brand: [brandsList[0]],
-                // price: null,
+                price: null,
                 name: '',
             });
+            setReset(true);
         }
-    }, [itemsPerPage, brand, nameSeatch])   // нет price
+    }, [itemsPerPage, brand, nameSeatch, price, priceList]);
 
     const cbOnClick__ButtonApply = useCallback(() => {
         setFiletrData({
             itemsPerPage,
             brand: brand.length === brandsList.length ? ['Все'] : brand,
-            // price: price.length === priceList.length ? null : price,
+            price: price.length === priceList.length ? null : price,
             name: nameSeatch,
         })
-    }, [itemsPerPage, brand, nameSeatch])   // нет price
+    }, [itemsPerPage, brand, brandsList, price, priceList, nameSeatch]);
 
     useEffect(() => {
-        getBrandList();
-        // getPriceList();
-    }, []);
+        if (reset) {
+            getBrandList();
+            getPriceList();
+            setReset(false);
+        }
+    }, [reset]);
     return (
 
         <Box
@@ -198,14 +204,14 @@ export const FilterPanel = ({
                 onChange={cbOnChange__brand}
             />
 
-            {/* <SetPrice
+            <SetPrice
                 id={'price'}
                 sx={{
                     mt: 2,
                 }}
                 priceList={priceList}
                 onChange={cbOnChange__price}
-            /> */}
+            />
 
             <NameSearch
                 id={'NameSearch'}

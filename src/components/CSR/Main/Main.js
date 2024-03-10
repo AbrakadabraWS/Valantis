@@ -156,6 +156,7 @@ export const Main = ({
             }
         }
         // console.log('end brands')
+
         // получим ID после фильтрации по Наименованию
         if (filterData.name) {
             // console.log('in product')
@@ -180,18 +181,18 @@ export const Main = ({
         // console.log('end product')
 
         // получим ID после фильтрации по цене
-        // if (filterData.price) {
-        //     console.log('in price')
-        //     filterPriceResult = await ValantisFilter({
-        //         field: 'price',
-        //         values: filterData.price,
-        //         errorCounter: errorCounter,
-        //     });
+        if (filterData.price) {
+            console.log('in price')
+            filterPriceResult = await ValantisFilter({
+                field: 'price',
+                values: filterData.price,
+                errorCounter: errorCounter,
+            });
 
-        //     if (filterPriceResult.errors) {
-        //         filterPriceResult.errors.forEach((error) => console.error(error));
-        //     }
-        // }
+            if (filterPriceResult.errors) {
+                filterPriceResult.errors.forEach((error) => console.error(error));
+            }
+        }
         // console.log('end price')
 
         // обрабатываем результаты
@@ -200,9 +201,9 @@ export const Main = ({
         // console.log(filterPriceResult)
 
         if (                                                                                       // Если ID есть
-            (((!filterData.brand.includes('Все')) || !filterData.brand) && filterData.name) // ||  // от фильтров бренда и продукта
-            // (filterData.name && filterData.price) ||                                            // от фильтров продукта и цены
-            // ((filterData.price && (!filterData.brand.includes('Все'))) || !filterData.brand)    // от фильтров цены и бренда
+            (((!filterData.brand.includes('Все')) || !filterData.brand) && filterData.name) ||  // от фильтров бренда и продукта
+            (filterData.name && filterData.price) ||                                            // от фильтров продукта и цены
+            ((filterData.price && (!filterData.brand.includes('Все'))) || !filterData.brand)    // от фильтров цены и бренда
         ) {
             filterBrandResult.IDs.forEach((brandID) => {
                 if (
@@ -248,7 +249,7 @@ export const Main = ({
     useEffect(() => {
         if (
             ((!filterData.brand.includes('Все')) || !filterData.brand) ||
-            // filterData.price ||
+            filterData.price ||
             filterData.name
         ) {
             setDataIsLoad(true);

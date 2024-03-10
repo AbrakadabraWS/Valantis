@@ -1,45 +1,64 @@
-# Material UI - Next.js App Router example
+# Тестовое задание от Valantis
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped using [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with Material UI installed.
+Как использовать
 
-## How to use
-
-Download the example [or clone the repo](https://github.com/mui/material-ui):
-
-<!-- #default-branch-switch -->
+Вы можете перейти на запущенный для этого проекта [GitPages](https://abrakadabraws.github.io/Valantis/) или клонировать репозиторий к себе на компьютериспользуюя следующие команды
 
 ```bash
-curl https://codeload.github.com/mui/material-ui/tar.gz/master | tar -xz --strip=2  material-ui-master/examples/material-ui-nextjs
-cd material-ui-nextjs
+git clone https://github.com/AbrakadabraWS/Valantis.git
+cd Valantis
 ```
 
-Install it and run:
+Посде клонирования репозитория необходимо установить пакеты и можно запустить проект в dev режиме:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+После запуска перейдите в браузере по ссылке [http://localhost:3000](http://localhost:3000)
+Важно в dev режиме NextJS выполняет все запросы по 2 раза связано это с особенностью самого NextJS
 
-or:
+Так же доступен вариант запуска в режиме релиза (в этом же режиме работает код на [GitPages](https://abrakadabraws.github.io/Valantis/)) для этого если вы еще не запускали в dev режиме то выполните команду npm run dev это необходимо для того чтоб NextJS сформировал все необходимые для билда файлы
 
-<!-- #default-branch-switch -->
+```bash
+npm run dev
+```
 
-[![Edit on StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/mui/material-ui/tree/master/examples/material-ui-nextjs)
+После этого с помощью Ctrl+C выйдите закройте dev режим и выполните следующие коанды
 
-[![Edit on CodeSandbox](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/p/sandbox/github/mui/material-ui/tree/master/examples/material-ui-nextjs)
+```bash
+npm run build
+npm run start
+```
 
-## Learn more
+После запуска перейдите в браузере по ссылке [http://localhost:3000](http://localhost:3000)
 
-To learn more about this example:
+## Задание предоставленное Valantis
 
-- [Next.js documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Customizing Material UI](https://mui.com/material-ui/customization/how-to-customize/) - approaches to customizing Material UI.
+Используя предоставленный апи создать страницу, которая отображает список товаров.
+Для каждого товара должен отображаться его id, название, цена и бренд.
 
-## What's next?
+### Требования Valantis:
 
-<!-- #default-branch-switch -->
+* выводить по 50 товаров на страницу с возможностью постраничного перехода (пагинация) в обе стороны.
+* возможность фильтровать выдачу используя предоставленное апи по названию, цене и бренду
 
-You now have a working example project.
-You can head back to the documentation and continue by browsing the [templates](https://mui.com/material-ui/getting-started/templates/) section.
+Если API возвращает дубли по id, то следует их считать одним товаром и выводить только первый, даже если другие поля различаются.
+Если API возвращает ошибку, следует вывести идентификатор ошибки в консоль, если он есть и повторить запрос.
+
+Задание можно выполнять на **React** или на **нативном JS**.
+Оцениваться будет правильность работы сайта и качество кода.
+**Внешний вид** сайта оставляем на Ваше усмотрение.
+
+Пароль для доступа к апи: **Valantis**API доступно по адресам:
+
+* http://api.valantis.store:40000/
+* https://api.valantis.store:41000/
+
+[Документация по работе с **API** прилагается](https://github.com/ValantisJewelry/TestTaskValantis/blob/main/API.md)
+
+## Итог выполнения задания
+
+Создана страница которая отображает список товаров по 50 штук на одну страницу пагинации. Для каждого товара отображается его Название, Цена, Бренд и id, дубли удаляются автоматически. На странице есть боковая панель с фильтрами по бренду названию и цене.
+Фильтрация по цене работает очень медленно, вероятно позже тут опишу причины по которым это происходит.

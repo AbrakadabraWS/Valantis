@@ -1,5 +1,5 @@
 'use client'
-import { Card, CardContent, CardActions, Typography, Button } from '@mui/material';
+import { Card, CardContent, Typography } from '@mui/material';
 
 export const NoResultsCard = ({
 }) => {

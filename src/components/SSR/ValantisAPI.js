@@ -11,16 +11,27 @@ const FIELDS_VARIANTS = [
     'product',
 ];
 
-const getAuthKey = () => {
+/**
+ * Генерирует на основании keyWord и timezone ключ аутентификации Valantis защифрованный в MD5.
+ * @param {string} keyWord Ключевое слово для доступа к API Valantis
+ * @param {number} timezone Тайм-зона сервера (числовое значение от -12 до 12 включая 0) с API Valantis необходимо для работы в любое время суток так как сервер может находиться в другом часовом поясе или время на сервере может иметь смещение
+ * @returns {string} ключ аутентификации Valantis защифрованный в MD5
+ */
+const getAuthKey = (keyWord, timezone) => {
     const actualDate = new Date();
-    actualDate.setHours(actualDate.getHours() + TIMEZONE); // поправка на местное время сервера
+    actualDate.setHours(actualDate.getHours() + timezone); // поправка на местное время сервера
     const fullYear = actualDate.getFullYear();
     const mounth = actualDate.getMonth() + 1;
     const dateDay = actualDate.getDate();
-    const PASSWORD = `${fullYear}${mounth < 10 ? `0${mounth}` : mounth}${dateDay < 10 ? `0${dateDay}` : dateDay}`;
-    return MD5(`${KEY_WORD}_${PASSWORD}`).toString();
+    const password = `${fullYear}${mounth < 10 ? `0${mounth}` : mounth}${dateDay < 10 ? `0${dateDay}` : dateDay}`;
+    return MD5(`${keyWord}_${password}`).toString();
 };
 
+/**
+ * Возвращает перебранный массив без повторяющихся значений
+ * @param {[string]} mainArray проверяемый массив (вложенности не работают)
+ * @returns {[string]} массив без повторяющихся значений
+ */
 const checkArrayRepetitions = (mainArray) => {
     let resultArray = [];
     mainArray.forEach((item) => {
@@ -31,8 +42,12 @@ const checkArrayRepetitions = (mainArray) => {
     return resultArray;
 }
 
+/**
+ * Возвращает перебранный массив данных карточек без повторяющихся по id карточек
+ * @param {[object]} itemArray проверяемый массив данных карточек товаров
+ * @returns {[object]} массив данных карточек без повторяющихся по id карточек
+ */
 const checkItemArrayRepetitions = (itemArray) => {
-    // console.log(itemArray)
     let resultArray = [];
     itemArray.forEach((item) => {
         if (!resultArray.find((itemFromResultArray) => itemFromResultArray.id === item.id)) {
@@ -49,7 +64,7 @@ export const ValantisAPIPOSTrequest = async (raw) => {
 
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
-    headers.append('X-Auth', `${getAuthKey()}`);
+    headers.append('X-Auth', `${getAuthKey(KEY_WORD, TIMEZONE)}`);
 
     let requestOptions = {
         method: 'POST',

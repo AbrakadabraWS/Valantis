@@ -14,27 +14,41 @@ export const Main = ({
     // getIDSForPage,
     // getItemsForPage,
 }) => {
-    const MAX_REPEAT_REQ = 5;
-    const REPEAT_REQ_VIA = 1000;
+    const MAX_REPEAT_REQ = 5;       // максимальное количество повторных запросов 
+    const REPEAT_REQ_VIA = 1000;    // частота повтора запросов (повторять запросы через 1000мс)
 
-    const { filterData, setFiletrData } = useContext(ContextFilterData);
+    const { filterData, setFiletrData } = useContext(ContextFilterData);    // контекст через который передаем между компонентами информацию о фильтрации
 
-    const [dataIsLoad, setDataIsLoad] = useState(true);
-    const [paginationDisabled, setPaginationDisabled] = useState(true);
-    const [pagesCount, setPagesCount] = useState(1);
-    const [pageNumber, setPageNumber] = useState(1);
-    const [IDs, setIDs] = useState(null);
-    const [itemsPerPage, setItemsPerPage] = useState(filterData.itemsPerPage);
-    const [items, setItems] = useState(null);
-    const [errorsCounter, setErrorsCounter] = useState(0);
+    const [dataIsLoad, setDataIsLoad] = useState(true);                     // флаг загрузки данных если true - данные загружаются если false - данные загружены
+    const [paginationDisabled, setPaginationDisabled] = useState(true);     // флаг блокировки пагинации если true - пагинация заблокирована false - пагинация доступна для действий пользователя
+    const [pagesCount, setPagesCount] = useState(1);                        // количество страниц
+    const [pageNumber, setPageNumber] = useState(1);                        // номер страницы
+    const [IDs, setIDs] = useState(null);                                   // массив ID карточек товаров если null значит ID еще не были загружены
+    const [itemsPerPage, setItemsPerPage] = useState(filterData.itemsPerPage);  // кол-во карточек на одну страницу
+    const [items, setItems] = useState(null);                               // массив объектов с данными карточек товаров если null значит данные еще не были загружены
+    const [errorsCounter, setErrorsCounter] = useState(0);                  // счетчик ошибок запросов данных нужен на случай если api не доступно или ошибка в коде
 
 
-
+    /**
+     * Колбэк функция смены страницы (пагинация)
+     */
     const cbChangePage = useCallback((event, page) => {
-        setDataIsLoad(true);
-        setPageNumber(page);
+        setDataIsLoad(true);    // переходим в режим загрузки данных
+        setPageNumber(page);    // начинаем загрузку данных для определенной страницы
     }, []);
 
+    /**
+     * Функция вывода в консоль сообщения об ошибке и повторного запроса
+     * @param {string} errorMessage текст сообщения об ошибке
+     * @param {Function} repeatFunction функция которую необходимо повторно вызвать
+     * 
+     * Для работы функции должен существовать 
+     * * const [errorsCounter, setErrorsCounter] = useState(0);
+     * * MAX_REPEAT_REQ
+     * * REPEAT_REQ_VIA
+     * 
+     * Необходимо для подсчета количества ошибок и выполнения повторного выполнения переданной в repeatFunction функции через определенное время
+     */
     const sendReqErrorMessage = (errorMessage, repeatFunction) => {
         console.error(errorMessage)
         setErrorsCounter(errorsCounter + 1);
@@ -49,6 +63,9 @@ export const Main = ({
         }
     }
 
+    /**
+     * Обновляет данные карточек
+     */
     const updateDataInPage = () => {
         setPaginationDisabled(true);
         if (IDs.length) {
@@ -74,13 +91,13 @@ export const Main = ({
             );
         }
         else {
-            console.log('ничего не нашлось')
             setItems([]);
             setPaginationDisabled(false);
             setDataIsLoad(false);
         }
     }
 
+    /** Обновляет ID карточек */
     const updateIDsForPage = () => {
         getIDs().then(
             (result) => {
@@ -103,6 +120,11 @@ export const Main = ({
         )
     }
 
+    /**
+     * Принимает параметры фильтрации и согласно этих параметров запрашивает ID
+     * @param {object} filterData объект содержащий в себе параметры фильтрации  
+     * @returns {[string]} массив строк 
+     */
     const getFilterData = async (filterData) => {
         let errorCounter = MAX_REPEAT_REQ;
 
@@ -136,7 +158,7 @@ export const Main = ({
         // console.log('end brands')
         // получим ID после фильтрации по Наименованию
         if (filterData.name) {
-            // console.log('in product')
+            console.log('in product')
             let tempName = filterData.name.replace(/^\s\s*/, '').replace(/\s\s*$/, ''); // убираем пробелы в начале и конце строки
             const namesArray = [
                 tempName,                                                    // то что ввел пользователь
@@ -173,8 +195,8 @@ export const Main = ({
         // console.log('end price')
 
         // обрабатываем результаты
-        console.log(filterBrandResult)
-        console.log(filterProductResult)
+        // console.log(filterBrandResult)
+        // console.log(filterProductResult)
         // console.log(filterPriceResult)
 
         if (                                                                                       // Если ID есть
@@ -205,18 +227,16 @@ export const Main = ({
                 result = filterPriceResult.IDs;
             }
         }
-        console.log(result)
+        // console.log(result)
         return result;
     }
 
     useEffect(() => {
         if (IDs) {
-            console.log('in true')
             setPagesCount(IDs.length);
             updateDataInPage();
         }
         else {
-            console.log('in false')
             setDataIsLoad(true);
             // console.warn('Первый запрос IDs')
             updateIDsForPage();
@@ -251,8 +271,8 @@ export const Main = ({
             if (filterData.itemsPerPage !== itemsPerPage) {
                 setDataIsLoad(true);
                 setItemsPerPage(filterData.itemsPerPage);
-                setIDs(null); // вызываем заново пересчет всего что на странице
             }
+            setIDs(null); // вызываем заново пересчет всего что на странице
         }
     }, [filterData]);
 

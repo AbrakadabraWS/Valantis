@@ -133,6 +133,28 @@ export const FilterPanel = ({
         setNameSeatch(name);
     }, []);
 
+
+    const cbOnClick__ButtonClearFilter = useCallback(() => {
+        if (
+            itemsPerPage !== itemsPerPageList[3].value ||
+            !brand.includes(brandsList[0]) ||
+            // price !== null ||
+            nameSeatch !== ''
+        ) {
+            setItemsPerPage(itemsPerPageList[3].value);
+            setBrand([brandsList[0]]);
+            // setPrice(null);
+            setNameSeatch('');
+
+            setFiletrData({
+                itemsPerPage: itemsPerPageList[3].value,
+                brand: [brandsList[0]],
+                // price: null,
+                name: '',
+            });
+        }
+    }, [itemsPerPage, brand, nameSeatch])   // нет price
+
     const cbOnClick__ButtonApply = useCallback(() => {
         setFiletrData({
             itemsPerPage,
@@ -193,6 +215,7 @@ export const FilterPanel = ({
                 onChange={cbOnChange__NameSeatch}
             />
             <Button
+                id='FilterPanel__ButtonApply'
                 sx={{
                     mt: 2,
                 }}
@@ -201,6 +224,18 @@ export const FilterPanel = ({
                 onClick={cbOnClick__ButtonApply}
             >
                 Применить
+            </Button>
+
+            <Button
+                id='FilterPanel__ButtonClearFilter'
+                sx={{
+                    mt: 2,
+                }}
+                variant="outlined"
+                color="success"
+                onClick={cbOnClick__ButtonClearFilter}
+            >
+                Сбросить
             </Button>
         </Box>
     )

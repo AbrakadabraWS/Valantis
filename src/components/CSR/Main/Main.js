@@ -123,7 +123,7 @@ export const Main = ({
     /**
      * Принимает параметры фильтрации и согласно этих параметров запрашивает ID
      * @param {object} filterData объект содержащий в себе параметры фильтрации  
-     * @returns {[string]} массив строк 
+     * @returns {[string]} массив строк ID
      */
     const getFilterData = async (filterData) => {
         let errorCounter = MAX_REPEAT_REQ;
@@ -158,7 +158,7 @@ export const Main = ({
         // console.log('end brands')
         // получим ID после фильтрации по Наименованию
         if (filterData.name) {
-            console.log('in product')
+            // console.log('in product')
             let tempName = filterData.name.replace(/^\s\s*/, '').replace(/\s\s*$/, ''); // убираем пробелы в начале и конце строки
             const namesArray = [
                 tempName,                                                    // то что ввел пользователь
@@ -231,6 +231,7 @@ export const Main = ({
         return result;
     }
 
+    // основной useEffect выполняется при изменении IDs или pageNumber
     useEffect(() => {
         if (IDs) {
             setPagesCount(IDs.length);
@@ -243,6 +244,7 @@ export const Main = ({
         }
     }, [IDs, pageNumber]);
 
+    // useEffect для работы фильтрации выполняется при применении фильтра
     useEffect(() => {
         if (
             ((!filterData.brand.includes('Все')) || !filterData.brand) ||
@@ -255,8 +257,8 @@ export const Main = ({
                     setItemsPerPage(filterData.itemsPerPage);
                     if (result) {
                         let IDsInPages = [];
-                        for (let i = 0; i < result.length; i += itemsPerPage) {
-                            IDsInPages.push(result.slice(i, i + itemsPerPage));
+                        for (let i = 0; i < result.length; i += filterData.itemsPerPage) {
+                            IDsInPages.push(result.slice(i, i + filterData.itemsPerPage));
                             // do whatever
                         }
                         setIDs(IDsInPages);
@@ -331,7 +333,7 @@ export const Main = ({
                 }
             </Box>
             {
-                pagesCount >= 2 && (
+                pagesCount >= 2 ? (
                     <PaginationPanel
                         sx={{
                             display: 'flex',
@@ -344,6 +346,20 @@ export const Main = ({
                         onChange={cbChangePage}
                         disabled={paginationDisabled}
                     />
+                ) : (
+                    (pagesCount === 1 && !dataIsLoad) && (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                // justifyContent: 'center',
+                                flex: '0 0 auto',
+                                py: 1,
+                                borderTop: '2px solid #ebebeb',
+                            }}
+                        >
+                            Всего товаров: {items?.length} на одной странице.
+                        </Box>
+                    )
                 )
             }
 

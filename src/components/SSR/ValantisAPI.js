@@ -207,7 +207,7 @@ export const ValantisFilter = async ({
     values,
     startErrorCounter = 5,
 }) => {
-    console.log('*** in Filter ***');
+    // console.log('*** in Filter ***');
     let filterArray = [];
     let rawInJSON = {
         'action': 'filter',
@@ -229,7 +229,6 @@ export const ValantisFilter = async ({
         }
 
         const request = async () => {
-            console.log(rawInJSON)
             let tempResultData = await ValantisAPIPOSTrequest(
                 JSON.stringify(rawInJSON)
             );

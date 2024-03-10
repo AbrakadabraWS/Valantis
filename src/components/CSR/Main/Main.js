@@ -57,7 +57,6 @@ export const Main = ({
                     sendReqErrorMessage(result.items, updateDataInPage);
                 }
                 else {
-                    console.log('data is load')
                     setErrorsCounter(0);
                     setItems(result);
                     setPaginationDisabled(false);
@@ -98,7 +97,6 @@ export const Main = ({
     const getFilterData = async (filterData) => {
         let errorCounter = MAX_REPEAT_REQ;
 
-        console.log(filterData)
         let result = [];
         let filterBrandResult = {
             IDs: [],
@@ -115,7 +113,7 @@ export const Main = ({
 
         // получим ID после фильтрации по бренду
         if ((!filterData.brand.includes('Все')) || !filterData.brand) {
-            console.log('in brand')
+            // console.log('in brand')
             filterBrandResult = await ValantisFilter({
                 field: 'brand',
                 values: filterData.brand,
@@ -126,19 +124,18 @@ export const Main = ({
                 filterBrandResult.errors.forEach((error) => console.error(error));
             }
         }
-        console.log('end brands')
+        // console.log('end brands')
         // получим ID после фильтрации по Наименованию
-        console.log(filterData.name)
-        console.log('золото\nзолотое')
-        let tempName = filterData.name.replace(/^\s\s*/, '').replace(/\s\s*$/, ''); // убираем пробелы в начале и конце строки
-        const namesArray = [
-            tempName,                                                    // то что ввел пользователь
-            tempName.toUpperCase(),                                      // в верхнем регистре
-            tempName.toLowerCase(),                                      // в нижнем регистре
-            tempName.charAt(0).toUpperCase() + tempName.slice(1)  // с заглавной буквы
-        ]
         if (filterData.name) {
-            console.log('in product')
+            // console.log('in product')
+            let tempName = filterData.name.replace(/^\s\s*/, '').replace(/\s\s*$/, ''); // убираем пробелы в начале и конце строки
+            const namesArray = [
+                tempName,                                                    // то что ввел пользователь
+                tempName.toUpperCase(),                                      // в верхнем регистре
+                tempName.toLowerCase(),                                      // в нижнем регистре
+                tempName.charAt(0).toUpperCase() + tempName.slice(1)  // с заглавной буквы
+            ]
+
             filterProductResult = await ValantisFilter({
                 field: 'product',
                 values: namesArray,
@@ -149,8 +146,8 @@ export const Main = ({
                 filterProductResult.errors.forEach((error) => console.error(error));
             }
         }
+        // console.log('end product')
 
-        console.log('end product')
         // получим ID после фильтрации по цене
         // if (filterData.price) {
         //     console.log('in price')
@@ -167,9 +164,9 @@ export const Main = ({
         // console.log('end price')
 
         // обрабатываем результаты
-        console.log(filterBrandResult)
-        console.log(filterProductResult)
-        console.log(filterPriceResult)
+        // console.log(filterBrandResult)
+        // console.log(filterProductResult)
+        // console.log(filterPriceResult)
 
         if (                                                                            // Если ID есть
             (filterBrandResult.IDs.length > 0 && filterProductResult.IDs.length > 0) // || // от фильтров бренда и продукта
@@ -199,13 +196,11 @@ export const Main = ({
                 result = filterPriceResult.IDs;
             }
         }
-        console.log(result)
-        console.log('----------------------------------')
+        // console.log(result)
         return result;
     }
 
     useEffect(() => {
-        console.log('rerender Effect')
 
         if (IDs) {
             setPagesCount(IDs.length);
@@ -213,15 +208,12 @@ export const Main = ({
         }
         else {
             setDataIsLoad(true);
-            console.warn('Первый запрос IDs')
+            // console.warn('Первый запрос IDs')
             updateIDsForPage();
         }
     }, [IDs, pageNumber]);
 
     useEffect(() => {
-        console.log('filterData  Effect')
-        console.log(filterData)
-
         if (
             ((!filterData.brand.includes('Все')) || !filterData.brand) ||
             // filterData.price ||
@@ -230,7 +222,6 @@ export const Main = ({
             setDataIsLoad(true);
             getFilterData(filterData).then(
                 (result) => {
-                    console.log(result)
                     setItemsPerPage(filterData.itemsPerPage);
                     if (result) {
                         let IDsInPages = [];

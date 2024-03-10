@@ -131,8 +131,7 @@ export const FilterPanel = ({
     // }, []);
 
     const cbOnChange__NameSeatch = useCallback((name) => {
-        console.log(name)
-        setNameSeatch(name)
+        setNameSeatch(name);
     }, []);
 
     const cbOnClick__ButtonApply = useCallback(() => {

@@ -85,24 +85,24 @@ export const FilterPanel = ({
         );
     }
 
-    const getPriceList = () => {
-        getFields('price').then(
-            (result) => {
-                if (typeof result === 'string') {
-                    console.error(result);
-                    setTimeout(getBrandList(), REPEAT_REQ_VIA);
-                }
-                else {
-                    setPriceList(result.sort(compareNumeric))
-                }
-            },
-            (error) => {
-                console.error(error);
-                setTimeout(getBrandList(), REPEAT_REQ_VIA);
+    // const getPriceList = () => {
+    //     getFields('price').then(
+    //         (result) => {
+    //             if (typeof result === 'string') {
+    //                 console.error(result);
+    //                 setTimeout(getBrandList(), REPEAT_REQ_VIA);
+    //             }
+    //             else {
+    //                 setPriceList(result.sort(compareNumeric))
+    //             }
+    //         },
+    //         (error) => {
+    //             console.error(error);
+    //             setTimeout(getBrandList(), REPEAT_REQ_VIA);
 
-            }
-        );
-    }
+    //         }
+    //     );
+    // }
 
     const cbOnChange__itemsPerPage = useCallback((event) => {
         setItemsPerPage(event.target.value);
@@ -146,7 +146,7 @@ export const FilterPanel = ({
 
     useEffect(() => {
         getBrandList();
-        getPriceList();
+        // getPriceList();
     }, []);
     return (
 

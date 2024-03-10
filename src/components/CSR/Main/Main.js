@@ -107,7 +107,11 @@ export const Main = ({
         let filterPriceResult = {
             IDs: [],
             errorsArray: []
-        };;
+        };
+        let filterProductResult = {
+            IDs: [],
+            errorsArray: []
+        };
 
         // получим ID после фильтрации по бренду
         if ((!filterData.brand.includes('Все')) || !filterData.brand) {
@@ -123,28 +127,60 @@ export const Main = ({
             }
         }
         console.log('end brands')
-        // получим ID после фильтрации по цене
-        if (filterData.price) {
-            console.log('in price')
-            filterPriceResult = await ValantisFilter({
-                field: 'price',
-                values: filterData.price,
+        // получим ID после фильтрации по Наименованию
+        console.log(filterData.name)
+        console.log('золото\nзолотое')
+        let tempName = filterData.name.replace(/^\s\s*/, '').replace(/\s\s*$/, ''); // убираем пробелы в начале и конце строки
+        const namesArray = [
+            tempName,                                                    // то что ввел пользователь
+            tempName.toUpperCase(),                                      // в верхнем регистре
+            tempName.toLowerCase(),                                      // в нижнем регистре
+            tempName.charAt(0).toUpperCase() + tempName.slice(1)  // с заглавной буквы
+        ]
+        if (filterData.name) {
+            console.log('in product')
+            filterProductResult = await ValantisFilter({
+                field: 'product',
+                values: namesArray,
                 errorCounter: errorCounter,
             });
 
-            if (filterPriceResult.errors) {
-                filterPriceResult.errors.forEach((error) => console.error(error));
+            if (filterProductResult.errors) {
+                filterProductResult.errors.forEach((error) => console.error(error));
             }
         }
-        console.log('end price')
+
+        console.log('end product')
+        // получим ID после фильтрации по цене
+        // if (filterData.price) {
+        //     console.log('in price')
+        //     filterPriceResult = await ValantisFilter({
+        //         field: 'price',
+        //         values: filterData.price,
+        //         errorCounter: errorCounter,
+        //     });
+
+        //     if (filterPriceResult.errors) {
+        //         filterPriceResult.errors.forEach((error) => console.error(error));
+        //     }
+        // }
+        // console.log('end price')
 
         // обрабатываем результаты
         console.log(filterBrandResult)
+        console.log(filterProductResult)
         console.log(filterPriceResult)
-        if (filterBrandResult.IDs.length > 0 && filterPriceResult.IDs.length > 0) {
-            // Если ID есть и от фильтра брендов и от фильтра
+
+        if (                                                                            // Если ID есть
+            (filterBrandResult.IDs.length > 0 && filterProductResult.IDs.length > 0) // || // от фильтров бренда и продукта
+            // (filterProductResult.IDs.length > 0 && filterPriceResult.IDs.length > 0) || // от фильтров продукта и цены
+            // (filterPriceResult.IDs.length > 0 && filterBrandResult.IDs.length > 0)      // от фильтров цены и бренда
+        ) {
             filterBrandResult.IDs.forEach((brandID) => {
-                if (filterPriceResult.IDs.includes(brandID)) {
+                if (
+                    // filterPriceResult.IDs.includes(brandID) &&
+                    filterProductResult.IDs.includes(brandID)
+                ) {
                     result.push(brandID);
                 }
             });
@@ -155,11 +191,15 @@ export const Main = ({
                 // Если ID есть только от фильтра брендов
                 result = filterBrandResult.IDs;
             }
+            else if (filterProductResult.IDs.length) {
+                result = filterProductResult.IDs;
+            }
             else {
                 // Тут уже не важно есть ID от фильтра цен или нет потому что если даже нет то запишем пустой массив в результат
                 result = filterPriceResult.IDs;
             }
         }
+        console.log(result)
         console.log('----------------------------------')
         return result;
     }
@@ -184,7 +224,8 @@ export const Main = ({
 
         if (
             ((!filterData.brand.includes('Все')) || !filterData.brand) ||
-            filterData.price
+            // filterData.price ||
+            filterData.name
         ) {
             setDataIsLoad(true);
             getFilterData(filterData).then(
